@@ -4,5 +4,9 @@
 <node>
   <interface name="com.endlessm.CompositeMode.Manager">
     <property name="IsInCompositeMode" type="b" access="read" />
+
+    <method name="DebugSetCompositeMode">
+      <arg name="enabled" type="b" direction="in" />
+    </method>
   </interface>
 </node>

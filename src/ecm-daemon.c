@@ -123,6 +123,18 @@ ecm_daemon_startup (GApplication *app)
 }
 
 static gboolean
+handle_debug_set_composite_mode (EcmManager *manager,
+                                 GDBusMethodInvocation *invocation,
+                                 gboolean enabled,
+                                 gpointer user_data)
+{
+  EcmDaemon *daemon = ECM_DAEMON (user_data);
+  set_composite_mode (daemon, enabled);
+  ecm_manager_complete_debug_set_composite_mode (manager, invocation);
+  return TRUE;
+}
+
+static gboolean
 ecm_daemon_dbus_register (GApplication    *app,
                           GDBusConnection *connection,
                           const char      *object_path,
@@ -131,6 +143,8 @@ ecm_daemon_dbus_register (GApplication    *app,
   EcmDaemon *daemon = ECM_DAEMON (app);
 
   daemon->skeleton = ecm_manager_skeleton_new ();
+  g_signal_connect (daemon->skeleton, "handle-debug-set-composite-mode",
+                    G_CALLBACK (handle_debug_set_composite_mode), daemon);
 
   if (!g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (daemon->skeleton), connection, object_path, error))
     return FALSE;
