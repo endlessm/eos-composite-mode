@@ -2,6 +2,7 @@
 
 AM_CFLAGS = $(EOS_COMPOSITE_MODE_CFLAGS) -Wall -Werror
 
+EXTRA_DIST =
 BUILT_SOURCES =
 
 ecm-generated.c: ecm-generated.h
@@ -19,3 +20,5 @@ eos_composite_mode_SOURCES = \
 	src/ecm-daemon.c src/ecm-daemon.h \
 	src/main.c
 eos_composite_mode_LDADD = $(EOS_COMPOSITE_MODE_LIBS)
+
+EXTRA_DIST += src/ecm-settings.c

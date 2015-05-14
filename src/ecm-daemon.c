@@ -12,6 +12,8 @@
 
 #include "ecm-generated.h"
 
+#include "ecm-settings.c"
+
 struct _EcmDaemon
 {
   GtkApplication parent;
@@ -21,6 +23,9 @@ struct _EcmDaemon
   GdkScreen *gdk_screen;
   Display *xdpy;
   Window root_win;
+
+  gboolean composite_enabled;
+  EcmSettings saved_settings;
 };
 
 G_DEFINE_TYPE (EcmDaemon, ecm_daemon, GTK_TYPE_APPLICATION);
@@ -28,9 +33,20 @@ G_DEFINE_TYPE (EcmDaemon, ecm_daemon, GTK_TYPE_APPLICATION);
 static void
 set_composite_mode (EcmDaemon *daemon, gboolean enabled)
 {
+  if (daemon->composite_enabled == enabled)
+    return;
+
+  daemon->composite_enabled = enabled;
   g_object_set (daemon->skeleton,
                 "is-in-composite-mode", enabled,
                 NULL);
+
+  if (enabled) {
+    ecm_settings_load_from_gsettings (&daemon->saved_settings);
+    ecm_settings_save_to_gsettings (&composite_settings);
+  } else {
+    ecm_settings_save_to_gsettings (&daemon->saved_settings);
+  }
 }
 
 static gboolean
