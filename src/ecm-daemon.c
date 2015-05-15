@@ -77,38 +77,40 @@ output_is_composite (Display *dpy, RROutput output_id)
   return ret;
 }
 
-static RROutput
-find_composite_output (Display *dpy, XRRScreenResources *resources)
+static gboolean
+should_be_in_composite_mode (Display *xdpy, XRRScreenResources *resources)
 {
   int i;
+  gboolean ret = FALSE;
+
   for (i = 0; i < resources->noutput; ++i) {
     RROutput output_id = resources->outputs[i];
-    if (output_is_composite (dpy, output_id))
-      return output_id;
+
+    if (output_is_composite (xdpy, output_id)) {
+      XRROutputInfo *output_info = XRRGetOutputInfo (xdpy, resources, output_id);
+      ret = TRUE;
+      XRRFreeOutputInfo (output_info);
+    }
+
+    if (ret)
+      break;
   }
-  return None;
+
+  return ret;
 }
 
 static void
 check_outputs (EcmDaemon *daemon)
 {
   XRRScreenResources *resources = XRRGetScreenResourcesCurrent (daemon->xdpy, daemon->root_win);
-  XRROutputInfo *output_info = NULL;
 
   if (!resources)
     goto out;
 
-  RROutput output_id = find_composite_output (daemon->xdpy, resources);
-
-  if (output_id == None)
-    goto out;
-
-  output_info = XRRGetOutputInfo (daemon->xdpy, resources, output_id);
-  set_composite_mode (daemon, output_info->connection == RR_Connected);
+  set_composite_mode (daemon, should_be_in_composite_mode (daemon->xdpy, resources));
 
  out:
   if (resources) XRRFreeScreenResources (resources);
-  if (output_info) XRRFreeOutputInfo (output_info);
 }
 
 static void
