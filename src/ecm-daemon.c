@@ -98,7 +98,8 @@ should_be_in_composite_mode (Display *xdpy, XRRScreenResources *resources)
 
     if (output_is_composite (xdpy, output_id)) {
       XRROutputInfo *output_info = XRRGetOutputInfo (xdpy, resources, output_id);
-      ret = TRUE;
+      if (output_info->connection == RR_Connected)
+        ret = TRUE;
       XRRFreeOutputInfo (output_info);
     }
 
