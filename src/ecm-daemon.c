@@ -65,8 +65,7 @@ output_is_composite (Display *dpy, RROutput output_id)
   Atom actual_type;
   int actual_format;
   unsigned long nitems, bytes_after;
-  unsigned char *buffer;
-  gboolean ret = FALSE;
+  g_autofree unsigned char *buffer = NULL;
 
   Atom connector_type = XInternAtom (dpy, RR_PROPERTY_CONNECTOR_TYPE, False);
   XRRGetOutputProperty (dpy, output_id,
@@ -76,53 +75,39 @@ output_is_composite (Display *dpy, RROutput output_id)
                         &nitems, &bytes_after, &buffer);
 
   if (actual_type != XA_ATOM || actual_format != 32 || nitems < 1)
-    goto out;
+    return FALSE;
 
   Atom res = ((Atom *) buffer)[0];
   Atom composite = (XInternAtom (dpy, "TV-Composite", True));
-  ret = (res == composite);
-
- out:
-  if (buffer) XFree (buffer);
-  return ret;
+  return (res == composite);
 }
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(XRROutputInfo, XRRFreeOutputInfo)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(XRRScreenResources, XRRFreeScreenResources)
 
 static gboolean
 should_be_in_composite_mode (Display *xdpy, XRRScreenResources *resources)
 {
   int i;
-  gboolean ret = FALSE;
 
   for (i = 0; i < resources->noutput; ++i) {
     RROutput output_id = resources->outputs[i];
 
     if (output_is_composite (xdpy, output_id)) {
-      XRROutputInfo *output_info = XRRGetOutputInfo (xdpy, resources, output_id);
+      g_autoptr(XRROutputInfo) output_info = XRRGetOutputInfo (xdpy, resources, output_id);
       if (output_info->connection == RR_Connected)
-        ret = TRUE;
-      XRRFreeOutputInfo (output_info);
+        return TRUE;
     }
-
-    if (ret)
-      break;
   }
 
-  return ret;
+  return FALSE;
 }
 
 static void
 check_outputs (EcmDaemon *daemon)
 {
-  XRRScreenResources *resources = XRRGetScreenResourcesCurrent (daemon->xdpy, daemon->root_win);
-
-  if (!resources)
-    goto out;
-
+  g_autoptr(XRRScreenResources) resources = XRRGetScreenResourcesCurrent (daemon->xdpy, daemon->root_win);
   set_composite_mode (daemon, should_be_in_composite_mode (daemon->xdpy, resources));
-
- out:
-  if (resources)
-    XRRFreeScreenResources (resources);
 }
 
 static void
