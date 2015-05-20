@@ -9,7 +9,7 @@ typedef struct
   double text_scaling_factor;
 } EcmSettings;
 
-static EcmSettings composite_settings = {
+static const EcmSettings composite_settings = {
   .picture_options = "none",
   .primary_color = "#7a8aa2",
   .secondary_color = "#7a8aa2",
@@ -44,7 +44,7 @@ ecm_settings_load_from_gsettings (EcmSettings *settings)
 }
 
 static void
-ecm_settings_save_to_gsettings (EcmSettings *settings)
+ecm_settings_save_to_gsettings (const EcmSettings *settings)
 {
   {
     g_autoptr (GSettings) desktop_settings = g_settings_new ("org.gnome.desktop.background");
