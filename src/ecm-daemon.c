@@ -110,7 +110,8 @@ check_outputs (EcmDaemon *daemon)
   set_composite_mode (daemon, should_be_in_composite_mode (daemon->xdpy, resources));
 
  out:
-  if (resources) XRRFreeScreenResources (resources);
+  if (resources)
+    XRRFreeScreenResources (resources);
 }
 
 static void
