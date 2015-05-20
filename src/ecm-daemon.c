@@ -31,6 +31,16 @@ struct _EcmDaemon
 G_DEFINE_TYPE (EcmDaemon, ecm_daemon, GTK_TYPE_APPLICATION);
 
 static void
+ecm_daemon_dispose (GObject *object)
+{
+  EcmDaemon *daemon = ECM_DAEMON (object);
+
+  g_clear_object (&daemon->skeleton);
+
+  G_OBJECT_CLASS (ecm_daemon_parent_class)->dispose (object);
+}
+
+static void
 set_composite_mode (EcmDaemon *daemon, gboolean enabled)
 {
   if (daemon->composite_enabled == enabled)
@@ -172,12 +182,25 @@ ecm_daemon_dbus_register (GApplication    *app,
 }
 
 static void
+ecm_daemon_dbus_unregister (GApplication    *app,
+                            GDBusConnection *connection,
+                            const char      *object_path)
+{
+  EcmDaemon *daemon = ECM_DAEMON (app);
+
+  g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (daemon->skeleton));
+}
+
+static void
 ecm_daemon_class_init (EcmDaemonClass *klass)
 {
   GApplicationClass *application_class = G_APPLICATION_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   application_class->startup = ecm_daemon_startup;
   application_class->dbus_register = ecm_daemon_dbus_register;
+  application_class->dbus_unregister = ecm_daemon_dbus_unregister;
+  object_class->dispose = ecm_daemon_dispose;
 }
 
 static void
