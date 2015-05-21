@@ -47,9 +47,7 @@ set_composite_mode (EcmDaemon *daemon, gboolean enabled)
     return;
 
   daemon->composite_enabled = enabled;
-  g_object_set (daemon->skeleton,
-                "is-in-composite-mode", enabled,
-                NULL);
+  ecm_manager_set_is_in_composite_mode (daemon->skeleton, enabled);
 
   if (enabled) {
     ecm_settings_load_from_gsettings (&daemon->saved_settings);
