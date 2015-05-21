@@ -83,29 +83,33 @@ output_is_composite (Display *dpy, RROutput output_id)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(XRROutputInfo, XRRFreeOutputInfo)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(XRRScreenResources, XRRFreeScreenResources)
 
-static gboolean
-should_be_in_composite_mode (Display *xdpy, XRRScreenResources *resources)
+static void
+check_outputs (EcmDaemon *daemon)
 {
   int i;
+  gboolean has_composite_output = FALSE;
+  gboolean has_connected_composite_output = FALSE;
+
+  g_autoptr(XRRScreenResources) resources = XRRGetScreenResourcesCurrent (daemon->xdpy, daemon->root_win);
 
   for (i = 0; i < resources->noutput; ++i) {
     RROutput output_id = resources->outputs[i];
 
-    if (output_is_composite (xdpy, output_id)) {
-      g_autoptr(XRROutputInfo) output_info = XRRGetOutputInfo (xdpy, resources, output_id);
-      if (output_info->connection == RR_Connected)
-        return TRUE;
+    if (output_is_composite (daemon->xdpy, output_id)) {
+      has_composite_output = TRUE;
+
+      g_autoptr(XRROutputInfo) output_info = XRRGetOutputInfo (daemon->xdpy, resources, output_id);
+      if (output_info->connection == RR_Connected) {
+        has_connected_composite_output = TRUE;
+        break;
+      }
     }
   }
 
-  return FALSE;
-}
+  if (!has_composite_output && !getenv ("EOS_COMPOSITE_MODE_DEBUG"))
+    exit (1);
 
-static void
-check_outputs (EcmDaemon *daemon)
-{
-  g_autoptr(XRRScreenResources) resources = XRRGetScreenResourcesCurrent (daemon->xdpy, daemon->root_win);
-  set_composite_mode (daemon, should_be_in_composite_mode (daemon->xdpy, resources));
+  set_composite_mode (daemon, has_connected_composite_output);
 }
 
 static void
