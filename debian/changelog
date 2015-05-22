@@ -1,3 +1,9 @@
+eos-composite-mode (1.0.0-2) unstable; urgency=low
+
+  * Update Debian packages to fix dependency bugs.
+
+ -- Jasper St. Pierre <jstpierre@mecheye.net>  Fri, 22 May 2015 11:54:17 -0700
+
 eos-composite-mode (1.0.0-1) eos; urgency=low
 
   * Initial release.

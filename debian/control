@@ -11,9 +11,8 @@ Build-Depends: debhelper (>= 9),
 Standards-Version: 3.9.2
 
 Package: eos-composite-mode
-Architecture: all
-Section: non-free/utils
-Priority: extra
-Depends: ${misc:Depends}
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
 Description: eos-composite-mode
  User-space daemon that tracks CVBS and adjusts user settings for composite mode
