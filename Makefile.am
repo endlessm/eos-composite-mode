@@ -36,4 +36,4 @@ com.endlessm.CompositeMode.service: Makefile
 CLEANFILES += com.endlessm.CompositeMode.service
 
 autostartdir = $(sysconfdir)/xdg/autostart
-autostart_DATA = com.endlessm.CompositeMode.desktop
+dist_autostart_DATA = com.endlessm.CompositeMode.desktop
