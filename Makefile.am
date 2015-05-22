@@ -2,6 +2,7 @@
 
 AM_CFLAGS = $(EOS_COMPOSITE_MODE_CFLAGS) -Wall -Werror
 
+CLEANFILES =
 EXTRA_DIST =
 BUILT_SOURCES =
 
@@ -22,3 +23,17 @@ eos_composite_mode_SOURCES = \
 eos_composite_mode_LDADD = $(EOS_COMPOSITE_MODE_LIBS)
 
 EXTRA_DIST += src/ecm-settings.c
+
+servicedir = $(datadir)/dbus-1/services
+service_DATA = com.endlessm.CompositeMode.service
+
+com.endlessm.CompositeMode.service: Makefile
+	$(AM_V_GEN) \
+	( echo "[D-BUS Service]" ; \
+	  echo "Name=com.endlessm.CompositeMode" ; \
+	  echo "Exec=${bindir}/eos-composite-mode" ) > $@.tmp && \
+	mv $@.tmp $@
+CLEANFILES += com.endlessm.CompositeMode.service
+
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_DATA = com.endlessm.CompositeMode.desktop

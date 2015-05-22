@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Composite Mode
+Exec=eos-composite-mode
+Type=application
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

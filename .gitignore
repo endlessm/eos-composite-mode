@@ -19,6 +19,7 @@ Makefile.in
 
 eos-composite-mode
 ecm-generated.[ch]
+com.endlessm.CompositeMode.service
 
 .deps
 .libs
