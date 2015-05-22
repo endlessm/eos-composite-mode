@@ -12,7 +12,9 @@ ecm-generated.h: $(srcdir)/src/com.endlessm.CompositeMode.xml Makefile
 		--interface-prefix com.endlessm.CompositeMode \
 		--generate-c-code ecm-generated \
 		--c-namespace Ecm $<
+EXTRA_DIST += src/com.endlessm.CompositeMode.xml
 BUILT_SOURCES += ecm-generated.c ecm-generated.h
+CLEANFILES += $(BUILT_SOURCES)
 
 bin_PROGRAMS = eos-composite-mode
 
