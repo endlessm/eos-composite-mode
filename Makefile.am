@@ -39,3 +39,5 @@ CLEANFILES += com.endlessm.CompositeMode.service
 
 autostartdir = $(sysconfdir)/xdg/autostart
 dist_autostart_DATA = com.endlessm.CompositeMode.desktop
+
+EXTRA_DIST += debian
