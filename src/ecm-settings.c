@@ -13,7 +13,7 @@ static const EcmSettings composite_settings = {
   .picture_options = "none",
   .primary_color = "#7a8aa2",
   .secondary_color = "#7a8aa2",
-  .text_scaling_factor = 1.5,
+  .text_scaling_factor = 2.2,
 };
 
 static void
