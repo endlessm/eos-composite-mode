@@ -152,6 +152,17 @@ handle_debug_set_composite_mode (EcmManager *manager,
 }
 
 static gboolean
+handle_debug_reset_settings (EcmManager *manager,
+                             GDBusMethodInvocation *invocation,
+                             gboolean enabled,
+                             gpointer user_data)
+{
+  ecm_settings_reset ();
+  ecm_manager_complete_debug_reset_settings (manager, invocation);
+  return TRUE;
+}
+
+static gboolean
 ecm_daemon_dbus_register (GApplication    *app,
                           GDBusConnection *connection,
                           const char      *object_path,
@@ -162,6 +173,8 @@ ecm_daemon_dbus_register (GApplication    *app,
   daemon->skeleton = ecm_manager_skeleton_new ();
   g_signal_connect (daemon->skeleton, "handle-debug-set-composite-mode",
                     G_CALLBACK (handle_debug_set_composite_mode), daemon);
+  g_signal_connect (daemon->skeleton, "handle-debug-reset-settings",
+                    G_CALLBACK (handle_debug_reset_settings), daemon);
 
   if (!g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (daemon->skeleton), connection, object_path, error))
     return FALSE;
