@@ -8,5 +8,8 @@
     <method name="DebugSetCompositeMode">
       <arg name="enabled" type="b" direction="in" />
     </method>
+
+    <method name="DebugResetSettings">
+    </method>
   </interface>
 </node>

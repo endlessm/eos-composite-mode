@@ -58,3 +58,19 @@ ecm_settings_save_to_gsettings (const EcmSettings *settings)
     g_settings_set_double (interface_settings, "text-scaling-factor", settings->text_scaling_factor);
   }
 }
+
+static void
+ecm_settings_reset (void)
+{
+  {
+    g_autoptr (GSettings) desktop_settings = g_settings_new ("org.gnome.desktop.background");
+    g_settings_reset (desktop_settings, "picture-options");
+    g_settings_reset (desktop_settings, "primary-color");
+    g_settings_reset (desktop_settings, "secondary-color");
+  }
+
+  {
+    g_autoptr (GSettings) interface_settings = g_settings_new ("org.gnome.desktop.interface");
+    g_settings_reset (interface_settings, "text-scaling-factor");
+  }
+}
