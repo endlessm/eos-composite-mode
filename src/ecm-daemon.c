@@ -177,6 +177,10 @@ ecm_daemon_dbus_unregister (GApplication    *app,
   EcmDaemon *daemon = ECM_DAEMON (app);
 
   g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (daemon->skeleton));
+
+  /* If the session goes away, then turn off composite mode
+   * so that if the next boot is with HDMI, it works fine. */
+  set_composite_mode (daemon, FALSE);
 }
 
 static void
