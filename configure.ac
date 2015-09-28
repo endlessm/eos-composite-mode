@@ -6,6 +6,7 @@ AM_INIT_AUTOMAKE([-Wall -Wno-portability foreign 1.11 tar-ustar no-dist-gzip dis
 AM_SILENT_RULES([yes])
 
 PKG_PROG_PKG_CONFIG
+GLIB_GSETTINGS
 
 AC_PROG_CC
 AC_CACHE_SAVE

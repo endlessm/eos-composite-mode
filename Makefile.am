@@ -37,6 +37,9 @@ com.endlessm.CompositeMode.service: Makefile
 	mv $@.tmp $@
 CLEANFILES += com.endlessm.CompositeMode.service
 
+gsettings_SCHEMAS = src/com.endlessm.CompositeMode.gschema.xml
+@GSETTINGS_RULES@
+
 autostartdir = $(sysconfdir)/xdg/autostart
 dist_autostart_DATA = com.endlessm.CompositeMode.desktop
 

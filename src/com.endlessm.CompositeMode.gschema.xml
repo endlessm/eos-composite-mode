@@ -1,0 +1,10 @@
+<schemalist>
+  <schema id="com.endlessm.CompositeMode.mode">
+    <key name="initialized" type="b"> <default>false</default> </key>
+
+    <key name="picture-options" type="s"> <default>''</default> </key>
+    <key name="primary-color" type="s"> <default>''</default> </key>
+    <key name="secondary-color" type="s"> <default>''</default> </key>
+    <key name="text-scaling-factor" type="d"> <default>0.0</default> </key>
+  </schema>
+</schemalist>
