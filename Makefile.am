@@ -38,6 +38,7 @@ com.endlessm.CompositeMode.service: Makefile
 CLEANFILES += com.endlessm.CompositeMode.service
 
 gsettings_SCHEMAS = src/com.endlessm.CompositeMode.gschema.xml
+EXTRA_DIST += $(gsettings_SCHEMAS)
 @GSETTINGS_RULES@
 
 autostartdir = $(sysconfdir)/xdg/autostart
