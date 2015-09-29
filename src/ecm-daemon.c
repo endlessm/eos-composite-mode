@@ -12,6 +12,12 @@
 
 #include "ecm-generated.h"
 
+typedef enum {
+  ECM_STATE_INITIALIZED,
+  ECM_STATE_HDMI,
+  ECM_STATE_COMPOSITE,
+} EcmState;
+
 #include "ecm-settings.c"
 
 struct _EcmDaemon
@@ -24,8 +30,7 @@ struct _EcmDaemon
   Display *xdpy;
   Window root_win;
 
-  gboolean composite_enabled;
-  EcmSettings saved_settings;
+  EcmState state;
 };
 
 G_DEFINE_TYPE (EcmDaemon, ecm_daemon, GTK_TYPE_APPLICATION);
@@ -41,20 +46,27 @@ ecm_daemon_dispose (GObject *object)
 }
 
 static void
-set_composite_mode (EcmDaemon *daemon, gboolean enabled)
+set_state (EcmDaemon *daemon, EcmState state)
 {
-  if (daemon->composite_enabled == enabled)
+  if (state == ECM_STATE_INITIALIZED)
+    g_assert_not_reached ();
+
+  if (daemon->state == state)
     return;
 
-  daemon->composite_enabled = enabled;
-  ecm_manager_set_is_in_composite_mode (daemon->skeleton, enabled);
+  if (daemon->state != ECM_STATE_INITIALIZED)
+    ecm_settings_persist (daemon->state);
 
-  if (enabled) {
-    ecm_settings_load_from_gsettings (&daemon->saved_settings);
-    ecm_settings_save_to_gsettings (&composite_settings);
-  } else {
-    ecm_settings_save_to_gsettings (&daemon->saved_settings);
-  }
+  daemon->state = state;
+  ecm_settings_load (daemon->state);
+
+  ecm_manager_set_is_in_composite_mode (daemon->skeleton, state == ECM_STATE_COMPOSITE);
+}
+
+static void
+set_composite_mode (EcmDaemon *daemon, gboolean enabled)
+{
+  set_state (daemon, enabled ? ECM_STATE_COMPOSITE : ECM_STATE_HDMI);
 }
 
 static gboolean

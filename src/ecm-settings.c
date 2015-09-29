@@ -1,72 +1,75 @@
 
 /* This file is hackily part of ecm-daemon.c */
 
-typedef struct
+static const char *
+get_path (EcmState state)
 {
-  char *picture_options;
-  char *primary_color;
-  char *secondary_color;
-  double text_scaling_factor;
-} EcmSettings;
-
-static const EcmSettings composite_settings = {
-  .picture_options = "none",
-  .primary_color = "#7a8aa2",
-  .secondary_color = "#7a8aa2",
-  .text_scaling_factor = 2.2,
-};
-
-static void
-ecm_settings_clear (EcmSettings *settings)
-{
-  g_clear_pointer (&settings->picture_options, g_free);
-  g_clear_pointer (&settings->primary_color, g_free);
-  g_clear_pointer (&settings->secondary_color, g_free);
-  settings->text_scaling_factor = 1.0;
-}
-
-static void
-ecm_settings_load_from_gsettings (EcmSettings *settings)
-{
-  ecm_settings_clear (settings);
-
-  {
-    g_autoptr (GSettings) desktop_settings = g_settings_new ("org.gnome.desktop.background");
-    settings->picture_options = g_settings_get_string (desktop_settings, "picture-options");
-    settings->primary_color = g_settings_get_string (desktop_settings, "primary-color");
-    settings->secondary_color = g_settings_get_string (desktop_settings, "secondary-color");
-  }
-
-  {
-    g_autoptr (GSettings) interface_settings = g_settings_new ("org.gnome.desktop.interface");
-    settings->text_scaling_factor = g_settings_get_double (interface_settings, "text-scaling-factor");
+  switch (state) {
+  case ECM_STATE_HDMI: return "/com/endlessm/CompositeMode/hdmi/";
+  case ECM_STATE_COMPOSITE: return "/com/endlessm/CompositeMode/composite/";
+  default: g_assert_not_reached ();
   }
 }
 
-static void
-ecm_settings_save_to_gsettings (const EcmSettings *settings)
+static GSettings *
+get_state_settings (EcmState state)
 {
-  {
-    g_autoptr (GSettings) desktop_settings = g_settings_new ("org.gnome.desktop.background");
-    g_settings_set_string (desktop_settings, "picture-options", settings->picture_options);
-    g_settings_set_string (desktop_settings, "primary-color", settings->primary_color);
-    g_settings_set_string (desktop_settings, "secondary-color", settings->secondary_color);
-  }
+  return g_settings_new_with_path ("com.endlessm.CompositeMode.mode", get_path (state));
+}
 
-  {
-    g_autoptr (GSettings) interface_settings = g_settings_new ("org.gnome.desktop.interface");
-    g_settings_set_double (interface_settings, "text-scaling-factor", settings->text_scaling_factor);
-  }
+static void
+ecm_settings_persist (EcmState old_state)
+{
+  g_autoptr (GSettings) background_settings = g_settings_new ("org.gnome.desktop.background");
+  g_autoptr (GSettings) interface_settings = g_settings_new ("org.gnome.desktop.interface");
+
+  /* Persist old values in the old state */
+  g_autoptr (GSettings) old_state_settings = get_state_settings (old_state);
+  g_settings_set_string (old_state_settings, "picture-options", g_settings_get_string (background_settings, "picture-options"));
+  g_settings_set_string (old_state_settings, "primary-color", g_settings_get_string (background_settings, "primary-color"));
+  g_settings_set_string (old_state_settings, "secondary-color", g_settings_get_string (background_settings, "secondary-color"));
+  g_settings_set_double (old_state_settings, "text-scaling-factor", g_settings_get_double (interface_settings, "text-scaling-factor"));
+}
+
+static void
+ecm_settings_load (EcmState new_state)
+{
+  g_autoptr (GSettings) background_settings = g_settings_new ("org.gnome.desktop.background");
+  g_autoptr (GSettings) interface_settings = g_settings_new ("org.gnome.desktop.interface");
+
+  /* Now load values from the new state into the session */
+  g_autoptr (GSettings) new_state_settings = get_state_settings (new_state);
+
+  if (!g_settings_get_boolean (new_state_settings, "initialized"))
+    {
+      /* If we've never used composite before, then load the default values for that. */
+      if (new_state == ECM_STATE_COMPOSITE)
+        {
+          g_settings_set_string (new_state_settings, "picture-options", "none");
+          g_settings_set_string (new_state_settings, "primary-color", "#7a8aa2");
+          g_settings_set_string (new_state_settings, "secondary-color", "#7a8aa2");
+          g_settings_set_double (new_state_settings, "text-scaling-factor", 2.2);
+        }
+      else
+        ecm_settings_persist (new_state);
+
+      g_settings_set_boolean (new_state_settings, "initialized", TRUE);
+    }
+
+  g_settings_set_string (background_settings, "picture-options", g_settings_get_string (new_state_settings, "picture-options"));
+  g_settings_set_string (background_settings, "primary-color", g_settings_get_string (new_state_settings, "primary-color"));
+  g_settings_set_string (background_settings, "secondary-color", g_settings_get_string (new_state_settings, "secondary-color"));
+  g_settings_set_double (interface_settings, "text-scaling-factor", g_settings_get_double (new_state_settings, "text-scaling-factor"));
 }
 
 static void
 ecm_settings_reset (void)
 {
   {
-    g_autoptr (GSettings) desktop_settings = g_settings_new ("org.gnome.desktop.background");
-    g_settings_reset (desktop_settings, "picture-options");
-    g_settings_reset (desktop_settings, "primary-color");
-    g_settings_reset (desktop_settings, "secondary-color");
+    g_autoptr (GSettings) background_settings = g_settings_new ("org.gnome.desktop.background");
+    g_settings_reset (background_settings, "picture-options");
+    g_settings_reset (background_settings, "primary-color");
+    g_settings_reset (background_settings, "secondary-color");
   }
 
   {
