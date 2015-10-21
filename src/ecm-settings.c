@@ -40,7 +40,7 @@ ecm_settings_load (EcmState new_state)
       /* If we've never used composite before, then load the default values for that. */
       if (new_state == ECM_STATE_COMPOSITE)
         {
-          g_settings_set_double (new_state_settings, "text-scaling-factor", 2.2);
+          g_settings_set_double (new_state_settings, "text-scaling-factor", 1.1);
         }
       else
         ecm_settings_persist (new_state);
