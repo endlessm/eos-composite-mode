@@ -54,8 +54,6 @@ set_state (EcmDaemon *daemon, EcmState state)
   if (daemon->state == state)
     return;
 
-  if (daemon->state != ECM_STATE_INITIALIZED)
-    ecm_settings_persist (daemon->state);
 
   daemon->state = state;
   ecm_settings_load (daemon->state);

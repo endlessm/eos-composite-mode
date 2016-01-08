@@ -1,6 +1,21 @@
 <schemalist>
+  <schema id="com.endlessm.CompositeMode" path="/com/endlessm/CompositeMode/">
+    <key name="text-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+      <summary>Accumulative text scaling factor</summary>
+      <description>
+        Factor used in addition to org.gnome.desktop.interface.text-scaling-factor.
+      </description>
+    </key>
+  </schema>
   <schema id="com.endlessm.CompositeMode.mode">
-    <key name="initialized" type="b"> <default>false</default> </key>
-    <key name="text-scaling-factor" type="d"> <default>0.0</default> </key>
+    <key name="initialized" type="b">
+      <default>false</default>
+    </key>
+    <key name="text-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+    </key>
   </schema>
 </schemalist>
