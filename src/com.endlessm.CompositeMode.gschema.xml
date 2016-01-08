@@ -8,12 +8,24 @@
         Factor used in addition to org.gnome.desktop.interface.text-scaling-factor.
       </description>
     </key>
+    <key name="browser-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+      <summary>Accumulative text scaling factor for the browser only</summary>
+      <description>
+        Extra scaling factor only used by the browser to scale web content.
+      </description>
+    </key>
   </schema>
   <schema id="com.endlessm.CompositeMode.mode">
     <key name="initialized" type="b">
       <default>false</default>
     </key>
     <key name="text-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+    </key>
+    <key name="browser-scaling-factor" type="d">
       <range min="1.0" max="2.0"/>
       <default>1.0</default>
     </key>

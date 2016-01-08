@@ -6,7 +6,10 @@
 
 #define INITIALIZED_KEY "initialized"
 #define TEXT_SCALING_FACTOR_KEY "text-scaling-factor"
+#define BROWSER_SCALING_FACTOR_KEY "browser-scaling-factor"
 
+/* At the moment we use the same defaults for text-scaling-factor and
+ * browser-scaling-factor for now, so one helper function will do. */
 static const double
 get_default_scaling_factor (EcmState state)
 {
@@ -44,12 +47,16 @@ ecm_settings_load (EcmState new_state)
   if (!g_settings_get_boolean (new_state_settings, INITIALIZED_KEY))
     {
       g_settings_set_double (new_state_settings, TEXT_SCALING_FACTOR_KEY, get_default_scaling_factor (new_state));
+      g_settings_set_double (new_state_settings, BROWSER_SCALING_FACTOR_KEY, get_default_scaling_factor (new_state));
       g_settings_set_boolean (new_state_settings, INITIALIZED_KEY, TRUE);
     }
 
   g_settings_set_double (interface_settings,
                          TEXT_SCALING_FACTOR_KEY,
                          g_settings_get_double (new_state_settings, TEXT_SCALING_FACTOR_KEY));
+  g_settings_set_double (interface_settings,
+                         BROWSER_SCALING_FACTOR_KEY,
+                         g_settings_get_double (new_state_settings, BROWSER_SCALING_FACTOR_KEY));
 }
 
 static void
@@ -58,5 +65,6 @@ ecm_settings_reset (void)
   {
     g_autoptr (GSettings) interface_settings = g_settings_new (COMPOSITE_MODE_SCHEMA);
     g_settings_reset (interface_settings, TEXT_SCALING_FACTOR_KEY);
+    g_settings_reset (interface_settings, BROWSER_SCALING_FACTOR_KEY);
   }
 }
