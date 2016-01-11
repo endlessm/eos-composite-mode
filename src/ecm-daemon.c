@@ -69,6 +69,12 @@ load_settings (EcmDaemon *daemon)
 }
 
 static void
+settings_changed (GSettings *settings, const char *key, EcmDaemon *daemon)
+{
+  load_settings (daemon);
+}
+
+static void
 set_state (EcmDaemon *daemon, EcmState state)
 {
   if (state == ECM_STATE_INITIALIZED)
@@ -79,9 +85,16 @@ set_state (EcmDaemon *daemon, EcmState state)
 
   daemon->state = state;
 
-  /* We will be using a different base schema now, update the GSettings object. */
+  /* We will be monitoring a different base schema now, update the GSettings object. */
   g_clear_object (&daemon->current_settings);
   daemon->current_settings = get_state_settings (state);
+
+  /* Due to BGO bug 733791, we need to make sure that we connect to the "changed"
+   * signal before any call to g_settings_get() or the callback won't ever be,
+   * executed, so let's do it right before calling load_settings().
+   * See https://bugzilla.gnome.org/show_bug.cgi?id=733791 */
+  g_signal_connect_object (daemon->current_settings, "changed",
+                           G_CALLBACK (settings_changed), daemon, 0);
 
   /* GSettings updated and state set. All ready to load the values. */
   load_settings (daemon);
