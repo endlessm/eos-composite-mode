@@ -12,13 +12,18 @@
 
 #include "ecm-generated.h"
 
+#define COMPOSITE_MODE_SCHEMA "com.endlessm.CompositeMode"
+#define COMPOSITE_MODE_HDMI_SCHEMA "com.endlessm.CompositeMode.hdmi"
+#define COMPOSITE_MODE_COMPOSITE_SCHEMA "com.endlessm.CompositeMode.composite"
+
+#define TEXT_SCALING_FACTOR_KEY "text-scaling-factor"
+#define BROWSER_SCALING_FACTOR_KEY "browser-scaling-factor"
+
 typedef enum {
   ECM_STATE_INITIALIZED,
   ECM_STATE_HDMI,
   ECM_STATE_COMPOSITE,
 } EcmState;
-
-#include "ecm-settings.c"
 
 struct _EcmDaemon
 {
@@ -30,10 +35,38 @@ struct _EcmDaemon
   Display *xdpy;
   Window root_win;
 
+  GSettings *current_settings;
+
   EcmState state;
 };
 
 G_DEFINE_TYPE (EcmDaemon, ecm_daemon, GTK_TYPE_APPLICATION);
+
+static GSettings *
+get_state_settings (EcmState state)
+{
+  switch (state) {
+  case ECM_STATE_HDMI: return g_settings_new (COMPOSITE_MODE_HDMI_SCHEMA);
+  case ECM_STATE_COMPOSITE: return g_settings_new (COMPOSITE_MODE_COMPOSITE_SCHEMA);
+  default: g_assert_not_reached ();
+  }
+}
+
+static void
+load_settings (EcmDaemon *daemon)
+{
+  g_assert (ECM_IS_DAEMON (daemon));
+  g_assert (G_IS_SETTINGS (daemon->current_settings));
+
+  g_autoptr (GSettings) interface_settings = g_settings_new (COMPOSITE_MODE_SCHEMA);
+
+  g_settings_set_double (interface_settings,
+                         TEXT_SCALING_FACTOR_KEY,
+                         g_settings_get_double (daemon->current_settings, TEXT_SCALING_FACTOR_KEY));
+  g_settings_set_double (interface_settings,
+                         BROWSER_SCALING_FACTOR_KEY,
+                         g_settings_get_double (daemon->current_settings, BROWSER_SCALING_FACTOR_KEY));
+}
 
 static void
 set_state (EcmDaemon *daemon, EcmState state)
@@ -44,9 +77,14 @@ set_state (EcmDaemon *daemon, EcmState state)
   if (daemon->state == state)
     return;
 
-
   daemon->state = state;
-  ecm_settings_load (daemon->state);
+
+  /* We will be using a different base schema now, update the GSettings object. */
+  g_clear_object (&daemon->current_settings);
+  daemon->current_settings = get_state_settings (state);
+
+  /* GSettings updated and state set. All ready to load the values. */
+  load_settings (daemon);
 
   ecm_manager_set_is_in_composite_mode (daemon->skeleton, state == ECM_STATE_COMPOSITE);
 }
@@ -151,13 +189,29 @@ handle_debug_set_composite_mode (EcmManager *manager,
   return TRUE;
 }
 
+static void
+reset_keys_for_schema (const gchar *schema_id)
+{
+  g_autoptr (GSettings) interface_settings = g_settings_new (schema_id);
+  g_settings_reset (interface_settings, TEXT_SCALING_FACTOR_KEY);
+  g_settings_reset (interface_settings, BROWSER_SCALING_FACTOR_KEY);
+}
+
+static void
+reset_settings (void)
+{
+  reset_keys_for_schema (COMPOSITE_MODE_SCHEMA);
+  reset_keys_for_schema (COMPOSITE_MODE_HDMI_SCHEMA);
+  reset_keys_for_schema (COMPOSITE_MODE_COMPOSITE_SCHEMA);
+}
+
 static gboolean
 handle_debug_reset_settings (EcmManager *manager,
                              GDBusMethodInvocation *invocation,
                              gboolean enabled,
                              gpointer user_data)
 {
-  ecm_settings_reset ();
+  reset_settings ();
   ecm_manager_complete_debug_reset_settings (manager, invocation);
   return TRUE;
 }
@@ -202,6 +256,7 @@ ecm_daemon_dispose (GObject *object)
   EcmDaemon *daemon = ECM_DAEMON (object);
 
   g_clear_object (&daemon->skeleton);
+  g_clear_object (&daemon->current_settings);
 
   G_OBJECT_CLASS (ecm_daemon_parent_class)->dispose (object);
 }
