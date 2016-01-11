@@ -36,16 +36,6 @@ struct _EcmDaemon
 G_DEFINE_TYPE (EcmDaemon, ecm_daemon, GTK_TYPE_APPLICATION);
 
 static void
-ecm_daemon_dispose (GObject *object)
-{
-  EcmDaemon *daemon = ECM_DAEMON (object);
-
-  g_clear_object (&daemon->skeleton);
-
-  G_OBJECT_CLASS (ecm_daemon_parent_class)->dispose (object);
-}
-
-static void
 set_state (EcmDaemon *daemon, EcmState state)
 {
   if (state == ECM_STATE_INITIALIZED)
@@ -204,6 +194,16 @@ ecm_daemon_dbus_unregister (GApplication    *app,
   /* If the session goes away, then turn off composite mode
    * so that if the next boot is with HDMI, it works fine. */
   set_composite_mode (daemon, FALSE);
+}
+
+static void
+ecm_daemon_dispose (GObject *object)
+{
+  EcmDaemon *daemon = ECM_DAEMON (object);
+
+  g_clear_object (&daemon->skeleton);
+
+  G_OBJECT_CLASS (ecm_daemon_parent_class)->dispose (object);
 }
 
 static void
