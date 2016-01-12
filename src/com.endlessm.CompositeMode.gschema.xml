@@ -1,6 +1,44 @@
 <schemalist>
-  <schema id="com.endlessm.CompositeMode.mode">
-    <key name="initialized" type="b"> <default>false</default> </key>
-    <key name="text-scaling-factor" type="d"> <default>0.0</default> </key>
+  <schema id="com.endlessm.CompositeMode" path="/com/endlessm/CompositeMode/">
+    <key name="text-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+      <summary>Accumulative text scaling factor</summary>
+      <description>
+        Factor used in addition to org.gnome.desktop.interface.text-scaling-factor.
+      </description>
+    </key>
+    <key name="browser-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+      <summary>Accumulative text scaling factor for the browser only</summary>
+      <description>
+        Extra scaling factor only used by the browser, to be applied on top of text-scaling-factor. Note: chromium won't do any scaling if the end value is less than 1.3 (crbug.com/484400).
+      </description>
+    </key>
+  </schema>
+  <schema id="com.endlessm.CompositeMode.hdmi" path="/com/endlessm/CompositeMode/hdmi/">
+    <key name="text-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+      <summary>Default value for com.endlessm.CompositeMode.text-scaling-factor in HDMI mode</summary>
+    </key>
+    <key name="browser-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.0</default>
+      <summary>Default value for com.endlessm.CompositeMode.browser-scaling-factor in HDMI mode</summary>
+    </key>
+  </schema>
+  <schema id="com.endlessm.CompositeMode.composite" path="/com/endlessm/CompositeMode/composite/">
+    <key name="text-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.1</default>
+      <summary>Default value for com.endlessm.CompositeMode.text-scaling-factor in Composite mode</summary>
+    </key>
+    <key name="browser-scaling-factor" type="d">
+      <range min="1.0" max="2.0"/>
+      <default>1.2</default>
+      <summary>Default value for com.endlessm.CompositeMode.browser-scaling-factor in Composite mode</summary>
+    </key>
   </schema>
 </schemalist>

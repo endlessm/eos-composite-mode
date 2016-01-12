@@ -24,8 +24,6 @@ eos_composite_mode_SOURCES = \
 	src/main.c
 eos_composite_mode_LDADD = $(EOS_COMPOSITE_MODE_LIBS)
 
-EXTRA_DIST += src/ecm-settings.c
-
 servicedir = $(datadir)/dbus-1/services
 service_DATA = com.endlessm.CompositeMode.service
 
