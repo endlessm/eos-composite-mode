@@ -32,12 +32,12 @@
   <schema id="com.endlessm.CompositeMode.composite" path="/com/endlessm/CompositeMode/composite/">
     <key name="text-scaling-factor" type="d">
       <range min="1.0" max="2.0"/>
-      <default>1.1</default>
+      <default>1.25</default>
       <summary>Default value for com.endlessm.CompositeMode.text-scaling-factor in Composite mode</summary>
     </key>
     <key name="browser-scaling-factor" type="d">
       <range min="1.0" max="2.0"/>
-      <default>1.2</default>
+      <default>1.05</default>
       <summary>Default value for com.endlessm.CompositeMode.browser-scaling-factor in Composite mode</summary>
     </key>
   </schema>
