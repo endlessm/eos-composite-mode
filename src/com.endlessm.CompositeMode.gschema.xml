@@ -13,7 +13,7 @@
       <default>1.0</default>
       <summary>Accumulative text scaling factor for the browser only</summary>
       <description>
-        Extra scaling factor only used by the browser, to be applied on top of text-scaling-factor. Note: chromium won't do any scaling if the end value is less than 1.3 (crbug.com/484400).
+        Extra scaling factor only used by the browser, to be applied on top of text-scaling-factor. Note: chromium won't do any scaling if the end value is less than 1.2 (crbug.com/484400).
       </description>
     </key>
   </schema>
