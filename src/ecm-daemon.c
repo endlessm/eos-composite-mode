@@ -36,6 +36,7 @@ struct _EcmDaemon
   Window root_win;
 
   GSettings *current_settings;
+  guint settings_changed_handler_id;
 
   EcmState state;
 };
@@ -68,11 +69,15 @@ load_settings (EcmDaemon *daemon)
   gdouble new_text_scaling = g_settings_get_double (daemon->current_settings, TEXT_SCALING_FACTOR_KEY);
   gdouble new_browser_scaling = g_settings_get_double (daemon->current_settings, BROWSER_SCALING_FACTOR_KEY);
 
+  g_signal_handler_block (daemon->current_settings, daemon->settings_changed_handler_id);
+
   if (old_text_scaling != new_text_scaling)
     g_settings_set_double (interface_settings, TEXT_SCALING_FACTOR_KEY, new_text_scaling);
 
   if (old_browser_scaling != new_browser_scaling)
     g_settings_set_double (interface_settings, BROWSER_SCALING_FACTOR_KEY, new_browser_scaling);
+
+  g_signal_handler_unblock (daemon->current_settings, daemon->settings_changed_handler_id);
 }
 
 static void
@@ -100,8 +105,8 @@ set_state (EcmDaemon *daemon, EcmState state)
    * signal before any call to g_settings_get() or the callback won't ever be,
    * executed, so let's do it right before calling load_settings().
    * See https://bugzilla.gnome.org/show_bug.cgi?id=733791 */
-  g_signal_connect_object (daemon->current_settings, "changed",
-                           G_CALLBACK (settings_changed), daemon, 0);
+  daemon->settings_changed_handler_id = g_signal_connect_object (daemon->current_settings, "changed",
+                                                                 G_CALLBACK (settings_changed), daemon, 0);
 
   /* GSettings updated and state set. All ready to load the values. */
   load_settings (daemon);
