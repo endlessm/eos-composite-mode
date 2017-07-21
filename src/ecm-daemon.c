@@ -60,12 +60,19 @@ load_settings (EcmDaemon *daemon)
 
   g_autoptr (GSettings) interface_settings = g_settings_new (COMPOSITE_MODE_SCHEMA);
 
-  g_settings_set_double (interface_settings,
-                         TEXT_SCALING_FACTOR_KEY,
-                         g_settings_get_double (daemon->current_settings, TEXT_SCALING_FACTOR_KEY));
-  g_settings_set_double (interface_settings,
-                         BROWSER_SCALING_FACTOR_KEY,
-                         g_settings_get_double (daemon->current_settings, BROWSER_SCALING_FACTOR_KEY));
+  // Only set the scaling values if they are different from the currently set ones
+  // otherwise it may end up spawning events related to the screen for no reason...
+  // See https://phabricator.endlessm.com/T18078
+  gdouble old_text_scaling = g_settings_get_double (interface_settings, TEXT_SCALING_FACTOR_KEY);
+  gdouble old_browser_scaling = g_settings_get_double (interface_settings, BROWSER_SCALING_FACTOR_KEY);
+  gdouble new_text_scaling = g_settings_get_double (daemon->current_settings, TEXT_SCALING_FACTOR_KEY);
+  gdouble new_browser_scaling = g_settings_get_double (daemon->current_settings, BROWSER_SCALING_FACTOR_KEY);
+
+  if (old_text_scaling != new_text_scaling)
+    g_settings_set_double (interface_settings, TEXT_SCALING_FACTOR_KEY, new_text_scaling);
+
+  if (old_browser_scaling != new_browser_scaling)
+    g_settings_set_double (interface_settings, BROWSER_SCALING_FACTOR_KEY, new_browser_scaling);
 }
 
 static void
